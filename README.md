@@ -6,5 +6,5 @@
    - Host: localhost
    - Porta: 5432
    - Usuário: admin
-   - Senha: admin1010
+   - Senha: senha
    - Banco: gestao_estoque
