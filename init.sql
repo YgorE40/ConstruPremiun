@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 -- Criação da tabela de funcionários primeiro (para ser referenciada por outras)
 CREATE TABLE IF NOT EXISTS funcionarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -93,3 +94,14 @@ CREATE TABLE IF NOT EXISTS marcas (
 
 ALTER TABLE produtos
 ADD CONSTRAINT fk_produto_marca FOREIGN KEY (marca_id) REFERENCES marcas(id) ON DELETE SET NULL;
+=======
+CREATE TABLE produtos (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    quantidade INTEGER DEFAULT 0
+);
+
+INSERT INTO produtos (nome, quantidade) VALUES
+('Produto A', 10),
+('Produto B', 25);
+>>>>>>> 43ddcb17f7463e266f339f851bef54cc04764ca0

@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   db:
+<<<<<<< HEAD
     image: mysql:8.0
     container_name: deposito_db
     restart: always
@@ -16,3 +17,20 @@ services:
 
 volumes:
   db_data:
+=======
+    image: postgres:15-alpine
+    container_name: estoque_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
+>>>>>>> 43ddcb17f7463e266f339f851bef54cc04764ca0
