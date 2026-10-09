@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construpremium - Painel Geral</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Construpremium</h1>
+        <div>
+            <span id="userDisplay"></span>
+            <button onclick="logout()" class="btn-primary" style="width: auto; padding: 0.4rem 0.8rem; background: #e74c3c;">Sair</button>
+        </div>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="showSection('pdvSection')">Vendas (PDV)</button>
+        <button class="nav-btn" onclick="showSection('historicoVendasSection')">Histórico de Vendas</button>
+        <button class="nav-btn" onclick="showSection('produtosSection')">Produtos & Estoque</button>
+        <button class="nav-btn" onclick="showSection('marcasSection')">Marcas</button>
+        <button class="nav-btn" onclick="showSection('fornecedoresSection')">Fornecedores</button>
+        <button class="nav-btn" onclick="showSection('clientesSection')">Clientes</button>
+        <button class="nav-btn" onclick="showSection('funcionariosSection')">Funcionários</button>
+        <button class="nav-btn" onclick="showSection('relatoriosSection')">Relatórios</button>
+    </nav>
+
+    <main>
+        <!-- 1. VENDAS (PDV) -->
+        <section id="pdvSection" class="section active">
+            <h2>Nova Venda (Balcão)</h2>
+            <div class="pdv-grid">
+                <div class="pdv-card">
+                    <h3>Adicionar Produto</h3>
+                    <div class="form-group"><label>Cliente (Opcional)</label><select id="pdvCliente"></select></div>
+                    <div class="form-group"><label>Produto</label><select id="pdvProduto"></select></div>
+                    <div class="form-group"><label>Quantidade</label><input type="number" id="pdvQtd" step="0.01" value="1.00"></div>
+                    <button class="btn-primary" onclick="adicionarItemCarrinho()">Adicionar ao Carrinho</button>
+                </div>
+                <div class="pdv-card">
+                    <div class="form-group">
+                        <label for="vendedor_id">Vendedor Responsável:</label>
+                        <select id="vendedor_id" class="form-control">
+                            <option value="">Selecione o vendedor...</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Motorista / Entregador (Opcional)</label>
+                        <select id="pdvMotorista">
+                            <option value="">Sem Entrega (Retirada no Balcão)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pdv-card" style="grid-column: span 2;">
+                    <h3>Itens do Pedido</h3>
+                    <table id="carrinhoTable">
+                        <thead><tr><th>Produto</th><th>Qtd</th><th>Subtotal</th><th>Ação</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                    <h3 style="margin-top: 1rem;">Total: R$ <span id="carrinhoTotal">0.00</span></h3>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Forma de Pagamento</label>
+                        <select id="pdvPagamento">
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="PIX">PIX</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="finalizarVenda()">Finalizar Venda</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. HISTÓRICO DE VENDAS -->
+        <section id="historicoVendasSection" class="section">
+            <h2>Histórico de Vendas Realizadas</h2>
+            <table id="historicoVendasTable">
+                <thead>
+                    <tr><th>ID</th><th>Data/Hora</th><th>Cliente</th><th>Atendente</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Ações</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- 3. PRODUTOS (AGORA COM MARCA E FORNECEDOR) -->
+        <section id="produtosSection" class="section">
+            <h2>Cadastro de Materiais</h2>
+            <form id="produtoForm" class="pdv-card" style="margin-bottom: 1.5rem;">
+                <input type="hidden" id="pId">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group"><label>Nome</label><input type="text" id="pNome" required></div>
+                    
+                    <!-- NOVA LISTA: MARCAS -->
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <select id="pMarca">
+                            <option value="">Sem marca</option>
+                            <!-- Prenchido pelo JS -->
+                        </select>
+                    </div>
+                    
+                    <!-- NOVA LISTA: FORNECEDOR -->
+                    <div class="form-group">
+                        <label>Fornecedor</label>
+                        <select id="pFornecedor">
+                            <option value="">Sem fornecedor</option>
+                            <!-- Prenchido pelo JS -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="pCategoria">
+                            <option value="Alvenaria">Alvenaria</option>
+                            <option value="Hidráulica">Hidráulica</option>
+                            <option value="Elétrica">Elétrica</option>
+                            <option value="Pintura">Pintura</option>
+                            <option value="Ferramentas">Ferramentas</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Unidade de Medida</label>
+                        <select id="pUnidade" required>
+                            <option value="UN">UN - Unidade</option>
+                            <option value="KG">KG - Quilograma</option>
+                            <option value="M">M - Metro Linear</option>
+                            <option value="M²">M² - Metro Quadrado</option>
+                            <option value="M³">M³ - Metro Cúbico</option>
+                            <option value="CX">CX - Caixa</option>
+                            <option value="SC">SC - Saco</option>
+                            <option value="L">L - Litro</option>
+                            <option value="PAR">PAR - Par</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Preço Venda (R$)</label><input type="number" step="0.01" id="pPreco" required></div>
+                    <div class="form-group"><label>Estoque Inicial/Atual</label><input type="number" step="0.01" id="pEstoque" required></div>
+                    <div class="form-group"><label>Estoque Mínimo</label><input type="number" step="0.01" id="pEstoqueMin" required></div>
+                </div>
+                <button type="submit" id="btnSalvarProduto" class="btn-primary" style="width: auto; margin-top:1rem;">Salvar Produto</button>
+                <button type="button" id="btnCancelarEditProduto" onclick="limparFormProduto()" class="btn-primary" style="width: auto; background: #7f8c8d; display: none; margin-top:1rem;">Cancelar</button>
+            </form>
+
+            <h3>Lista de Produtos em Estoque</h3>
+            <table id="produtosTable">
+                <thead>
+                    <tr><th>ID</th><th>Nome</th><th>Marca</th><th>Categoria</th><th>Unidade</th><th>Preço</th><th>Estoque</th><th>Status</th><th>Ações</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- NOVO: MARCAS -->
+        <section id="marcasSection" class="section">
+            <h2>Gestão de Marcas</h2>
+            <form id="marcaForm" class="pdv-card" style="margin-bottom: 1.5rem;">
+                <input type="hidden" id="mId">
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                    <div class="form-group"><label>Nome da Marca</label><input type="text" id="mNome" required></div>
+                    <div class="form-group"><label>CNPJ</label><input type="text" id="mCnpj"></div>
+                    <div class="form-group"><label>Telefone</label><input type="text" id="mTelefone"></div>
+                    <div class="form-group"><label>Endereço / Cidade</label><input type="text" id="mEndereco"></div>
+                </div>
+                <button type="submit" id="btnSalvarMarca" class="btn-primary" style="width: auto; margin-top: 1rem;">Cadastrar Marca</button>
+                <button type="button" id="btnCancelarEditMarca" onclick="limparFormMarca()" class="btn-primary" style="width: auto; background: #7f8c8d; display: none; margin-top: 1rem;">Cancelar</button>
+            </form>
+
+            <table id="marcasTable">
+                <thead>
+                    <tr><th>ID</th><th>Nome</th><th>CNPJ</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- NOVO: FORNECEDORES -->
+        <section id="fornecedoresSection" class="section">
+            <h2>Gestão de Fornecedores</h2>
+            <form id="fornecedorForm" class="pdv-card" style="margin-bottom: 1.5rem;">
+                <input type="hidden" id="forId">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="forNome" required></div>
+                    <div class="form-group"><label>CNPJ</label><input type="text" id="forCnpj" required></div>
+                    <div class="form-group"><label>Telefone</label><input type="text" id="forTelefone"></div>
+                    <div class="form-group"><label>Contato</label><input type="text" id="forContato"></div>
+                </div>
+                <button type="submit" id="btnSalvarFornecedor" class="btn-primary" style="width: auto; margin-top: 1rem;">Cadastrar Fornecedor</button>
+                <button type="button" id="btnCancelarEditFornecedor" onclick="limparFormFornecedor()" class="btn-primary" style="width: auto; background: #7f8c8d; display: none; margin-top: 1rem;">Cancelar</button>
+            </form>
+
+            <table id="fornecedoresTable">
+                <thead>
+                    <tr><th>ID</th><th>Nome/Razão Social</th><th>CNPJ</th><th>Telefone</th><th>Contato</th><th>Ações</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- 4. CLIENTES -->
+        <section id="clientesSection" class="section">
+            <h2>Gestão de Clientes</h2>
+            <form id="clienteForm" class="pdv-card" style="margin-bottom: 1.5rem;">
+                <input type="hidden" id="cId">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group"><label>Nome / Razão Social</label><input type="text" id="cNome" required></div>
+                    <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="cCpfCnpj"></div>
+                    <div class="form-group"><label>Telefone</label><input type="text" id="cTelefone"></div>
+                    <div class="form-group"><label>E-mail</label><input type="email" id="cEmail"></div>
+                    <div class="form-group" style="grid-column: span 2;"><label>Endereço de Entrega</label><input type="text" id="cEndereco" placeholder="Rua, Número, Bairro, Cidade"></div>
+                </div>
+                <button type="submit" id="btnSalvarCliente" class="btn-primary" style="width: auto;">Cadastrar Cliente</button>
+                <button type="button" id="btnCancelarEditCliente" onclick="limparFormCliente()" class="btn-primary" style="width: auto; background: #7f8c8d; display: none;">Cancelar</button>
+            </form>
+
+            <table id="clientesTable">
+                <thead>
+                    <tr><th>ID</th><th>Nome/Razão Social</th><th>CPF/CNPJ</th><th>Telefone</th><th>Endereço de Entrega</th><th>Ações</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- 5. FUNCIONÁRIOS -->
+        <section id="funcionariosSection" class="section">
+            <h2>Gestão de Funcionários</h2>
+            <form id="funcionarioForm" class="pdv-card" style="margin-bottom: 1.5rem;">
+                <input type="hidden" id="fId">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group"><label>Nome Completo</label><input type="text" id="fNome" required></div>
+                    <div class="form-group">
+                        <label>Cargo</label>
+                        <select id="fCargo" required>
+                            <option value="Vendedor">Vendedor</option>
+                            <option value="Entregador">Entregador</option>
+                            <option value="Caixa">Caixa</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>CPF</label><input type="text" id="fCpf"></div>
+                    <div class="form-group"><label>Telefone</label><input type="text" id="fTelefone"></div>
+                </div>
+                <button type="submit" id="btnSalvarFuncionario" class="btn-primary" style="width: auto;">Cadastrar Funcionário</button>
+                <button type="button" id="btnCancelarEditFuncionario" onclick="limparFormFuncionario()" class="btn-primary" style="width: auto; background: #7f8c8d; display: none;">Cancelar</button>
+            </form>
+
+            <table id="funcionariosTable">
+                <thead>
+                    <tr><th>ID</th><th>Nome</th><th>Cargo</th><th>CPF</th><th>Telefone</th><th>Ações</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- 6. RELATÓRIOS -->
+        <section id="relatoriosSection" class="section">
+            <h2>Resumo das Operações</h2>
+            <div class="pdv-card"><h3 style="margin: 0;">Total Faturado: R$ <span id="relTotalFaturado">0.00</span></h3></div>
+            <h3 style="margin-top: 1.5rem;">Mais Vendidos</h3>
+            <table id="relTopProdutosTable">
+                <thead><tr><th>Produto</th><th>Quantidade Vendida</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- MODAL: DETALHES DA VENDA -->
+    <div id="modalVenda" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="fecharModal('modalVenda')">&times;</button>
+            <h2>Detalhes da Venda #<span id="detalheVendaId"></span></h2>
+            <p><strong>Motorista / Entregador:</strong> <span id="detalheVendaMotorista"></span></p>
+            <p><strong>Cliente:</strong> <span id="detalheVendaCliente"></span></p>
+            <p><strong>Endereço de Entrega:</strong> <span id="detalheVendaEndereco"></span></p>
+            <p><strong>Atendente:</strong> <span id="detalheVendaUsuario"></span></p>
+            <p><strong>Forma de Pagamento:</strong> <span id="detalheVendaPagamento"></span></p>
+            <p><strong>Status:</strong> <span id="detalheVendaStatus"></span></p>
+            <hr style="margin: 1rem 0;">
+            <h3>Itens Vendidos</h3>
+            <table>
+                <thead><tr><th>Produto</th><th>Quantidade</th><th>Preço Unit.</th><th>Subtotal</th></tr></thead>
+                <tbody id="detalheVendaItens"></tbody>
+            </table>
+            <h3 style="margin-top: 1rem; text-align: right;">Total: R$ <span id="detalheVendaTotal"></span></h3>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITAR VENDA -->
+    <div id="modalEditarVenda" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="fecharModal('modalEditarVenda')">&times;</button>
+            <h2>Editar Venda #<span id="editVendaId"></span></h2>
+            <form id="formEditarVenda" style="margin-top: 1rem;">
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <select id="editVendaPagamento">
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="editVendaStatus">
+                        <option value="Concluída">Concluída</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Motorista / Entregador</label>
+                    <select id="editVendaMotorista">
+                        <option value="">Sem Entrega (Retirada no Balcão)</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-primary" onclick="confirmarEdicaoVenda()">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: HISTÓRICO DE COMPRAS DO CLIENTE -->
+    <div id="modalClienteHistorico" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="fecharModal('modalClienteHistorico')">&times;</button>
+            <h2>Histórico de Compras - <span id="modalClienteNome"></span></h2>
+            <table>
+                <thead><tr><th>ID Venda</th><th>Data</th><th>Forma Pagamento</th><th>Valor Total</th><th>Status</th></tr></thead>
+                <tbody id="modalClienteHistoricoBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
